@@ -26,5 +26,7 @@ Usage
 Make sure you have a python binding to GLFW3 installed
 
     $ cp ./build/lib.<system>/pynanovg/pynanovg.so ./examples/pynanovg/
+
     $ cd ./examples
+    
     $ python3 demo.py
