@@ -23,7 +23,7 @@ So far we only build the pynanovg.so file which can be locally imported using py
 Usage
 =====
 
-- Make sure you have a python binding to GLFW3 installed
+Make sure you have a python binding to GLFW3 installed
 
     $ cp ./build/lib.<system>/pynanovg/pynanovg.so ./examples/pynanovg/
     $ cd ./examples
