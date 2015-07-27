@@ -1,8 +1,6 @@
 
 import cython
-# from __future__ import division
 cimport cnanovg as nvg
-# import numpy as np
 cimport numpy as np
 import numpy as np
 DTYPE = np.float
@@ -17,20 +15,21 @@ ctypedef np.float_t DTYPE_t
 # a user created nanovg.Context
 # This is optional:
 # You can create the Context object yourself instead just as well.
-vg = None
-def create_shared_context():
-    global vg
-    if vg is None:
-        vg = Context()
+# vg = None
+# def create_shared_context():
+#     global vg
+#     if vg is None:
+#         vg = Context()
 
 
-def colorRGBAf(float r=0.0, float g=0.0, float b=0.0, float a=0.0):
-    return nvg.nvgRGBAf(r,g,b,a)
+#def colorRGBAf(float r=0.0, float g=0.0, float b=0.0, float a=0.0):
+#    return nvg.nvgRGBAf(r,g,b,a)
 
-# cpdef color(float r=0.0, float g=0.0, float b=0.0, float a=0.0):
-#     cdef nvg.NVGcolor c
-#     c = nvg.NVGcolor(r, g, b, a)
-#     return c
+#cpdef color(float r=0.0, float g=0.0, float b=0.0, float a=0.0):
+#   cdef nvg.NVGcolor c
+#    c = nvg.NVGcolor(r, g, b, a)
+#    return c
+
 
 class NVGError(Exception):
     """General Exception for this module"""
@@ -40,6 +39,7 @@ class NVGError(Exception):
 
 cdef class Context:
     cdef nvg.NVGcontext *ctx
+
     def __cinit__(self):
         # todo - handle other backends like gl3 or gles
         self.ctx = nvg.nvgCreateGL2(nvg.NVG_ANTIALIAS | nvg.NVG_STENCIL_STROKES)
@@ -109,11 +109,12 @@ cdef class Context:
     # - Different kinds of paints can be created using gradients or patterns
     # - Save render styles with save() and restore()
     #####################################################
-    def strokeColor(self, color):
+    def strokeColor(self, float r=0.0, float g=0.0, float b=0.0, float a=0.0):
         '''
         set current stroke to a solid color with or w/o alpha def by color
         '''
-        nvg.nvgStrokeColor(self.ctx, color)
+        cdef nvg.NVGcolor _color = nvg.NVGcolor(r, g, b, a)
+        nvg.nvgStrokeColor(self.ctx, _color)
 
     # def strokePaint(self, paint):
     #     '''
@@ -123,19 +124,20 @@ cdef class Context:
     #     '''
     #     nvg.nvgStrokePaint(self.ctx, paint)
 
-    def fillColor(self, color):
+    def fillColor(self, float r=0.0, float g=0.0, float b=0.0, float a=0.0):
         '''
         set current fill to a solid color with or w/o alpha def by color
         '''
-        nvg.nvgFillColor(self.ctx, color)
+        cdef nvg.NVGcolor _color = nvg.NVGcolor(r, g, b, a)
+        nvg.nvgFillColor(self.ctx, _color)
 
-    def fillPaint(self, paint):
-        '''
-        set current fill style to a paint type
-        - gradient (or)
-        - pattern
-        '''
-        nvg.nvgFillPaint(self.ctx, paint)
+    # def fillPaint(self, paint):
+    #     '''
+    #     set current fill style to a paint type
+    #     - gradient (or)
+    #     - pattern
+    #     '''
+    #     nvg.nvgFillPaint(self.ctx, paint)
 
     def miterLimit(self, float limit):
         '''
@@ -314,55 +316,55 @@ cdef class Context:
     # - image pattern.
     # Can be used as paints for strokes and fills.
     #####################################################
-    def linearGradient(self, float sx, float sy, float ex, float ey, c0, c1):
-        '''
-        Creates and returns a linear gradient.
-        - (sx,sy)-(ex,ey) specify the start and end coordinates of the linear gradient,
-        - color0 specifies the start color
-        - color1 specifies the end color
-        The gradient is transformed by the current transform when it is passed to fillPaint() or strokePaint()
-        '''
-        return nvg.nvgLinearGradient(self.ctx, sx, sy, ex, ey, c0, c1)
+    # def linearGradient(self, float sx, float sy, float ex, float ey, c0, c1):
+    #     '''
+    #     Creates and returns a linear gradient.
+    #     - (sx,sy)-(ex,ey) specify the start and end coordinates of the linear gradient,
+    #     - color0 specifies the start color
+    #     - color1 specifies the end color
+    #     The gradient is transformed by the current transform when it is passed to fillPaint() or strokePaint()
+    #     '''
+    #     return nvg.nvgLinearGradient(self.ctx, sx, sy, ex, ey, c0, c1)
 
 
-    def boxGradient(self, float x, float y, float w, float h, float r, float f, c0, c1):
-        '''
-        Creates and returns a box gradient
-        Box gradient is a feathered rounded rectangle
-        useful for rendering drop shadows or highlights for boxes
-        - (x,y) define the top-left corner of the rectangle
-        - (w,h) define the size of the rectangle
-        - r defines the corner radius
-        - f feather - feather defines how blurry the border of the rectangle appears
-        - color0 specifies the inner color of the gradient
-        - color1 specifies the outer color of the gradient
-        The gradient is transformed by the current transform when it is passed to fillPaint() or strokePaint().
-        '''
-        return nvg.nvgBoxGradient(self.ctx, x, y, w, h, r, f, c0, c1)
+    # def boxGradient(self, float x, float y, float w, float h, float r, float f, c0, c1):
+    #     '''
+    #     Creates and returns a box gradient
+    #     Box gradient is a feathered rounded rectangle
+    #     useful for rendering drop shadows or highlights for boxes
+    #     - (x,y) define the top-left corner of the rectangle
+    #     - (w,h) define the size of the rectangle
+    #     - r defines the corner radius
+    #     - f feather - feather defines how blurry the border of the rectangle appears
+    #     - color0 specifies the inner color of the gradient
+    #     - color1 specifies the outer color of the gradient
+    #     The gradient is transformed by the current transform when it is passed to fillPaint() or strokePaint().
+    #     '''
+    #     return nvg.nvgBoxGradient(self.ctx, x, y, w, h, r, f, c0, c1)
 
 
-    def radialGradient(self, float cx, float cy, float inner, float outer, c0, c1):
-        '''
-        Creates and returns a radial gradient
-        - (cx,cy) specify the center of the gradient
-        - (inner, outer) specify the inner and outer radius of the gradient
-        - color0, color1 specify the start and end color of the gradient
-        The gradient is transformed by the current transform when it is passed to fillPaint() or strokePaint().
-        '''
-        return nvg.nvgRadialGradient(self.ctx, cx, cy, inner, outer, c0, c1)
+    # def radialGradient(self, float cx, float cy, float inner, float outer, c0, c1):
+    #     '''
+    #     Creates and returns a radial gradient
+    #     - (cx,cy) specify the center of the gradient
+    #     - (inner, outer) specify the inner and outer radius of the gradient
+    #     - color0, color1 specify the start and end color of the gradient
+    #     The gradient is transformed by the current transform when it is passed to fillPaint() or strokePaint().
+    #     '''
+    #     return nvg.nvgRadialGradient(self.ctx, cx, cy, inner, outer, c0, c1)
 
 
-    def imagePattern(self, float ox, float oy, float ex, float ey, float angle, int image, int repeat, float alpha):
-        '''
-        Creates and returns an image pattern
-        - (ox,oy) specify the top-left location of the image pattern
-        - (ex,ey) specify the size of one image
-        - angle, rotation around the top-left corner
-        - image is the handle of the image to render
-        - repeat is combination of NVG_REPEATX and NVG_REPEATY which specifies if the image should be repeated across x or y
-        The gradient is transformed by the current transform when it is passed to fillPaint() or strokePaint().
-        '''
-        return nvg.nvgImagePattern(self.ctx, ox, oy, ex, ey, angle, image, repeat, alpha)
+    # def imagePattern(self, float ox, float oy, float ex, float ey, float angle, int image, int repeat, float alpha):
+    #     '''
+    #     Creates and returns an image pattern
+    #     - (ox,oy) specify the top-left location of the image pattern
+    #     - (ex,ey) specify the size of one image
+    #     - angle, rotation around the top-left corner
+    #     - image is the handle of the image to render
+    #     - repeat is combination of NVG_REPEATX and NVG_REPEATY which specifies if the image should be repeated across x or y
+    #     The gradient is transformed by the current transform when it is passed to fillPaint() or strokePaint().
+    #     '''
+    #     return nvg.nvgImagePattern(self.ctx, ox, oy, ex, ey, angle, image, repeat, alpha)
 
     #####################################################
     # Scissoring
@@ -685,9 +687,11 @@ cdef class Context:
         Returns the vertical metrics based on the current text style.
         Measured values are returned in local coordinate space.
 
-        it works but what does it do how is this supposted to be used?
+        it works but what does it do? how is this supposed to be used?
         '''
-        cdef float asc[1],dsc[1],lh[1]
+        cdef float asc[1]
+        cdef float dsc[1]
+        cdef float lh[1]
         if ascender: asc[0]=ascender
         if descender: dsc[0]=descender
         if lineh: lh[0]=lineh
@@ -706,13 +710,13 @@ cdef class Context:
         Words longer than the max width are split at nearest character (i.e. no hyphenation).
         '''
         cdef const char* c_end = NULL
-        cdef nvg.NVGtextRow* r
+        cdef nvg.NVGtextRow* r = NULL
         return <int>nvg.nvgTextBreakLines(self.ctx, txt, c_end, breakRowWidth, r, maxRows)
 
     ### Wrapper functions
     # below are functions that exsist to make drawing many things possible in Python
 
-    @cython.boundscheck(False) # turn of bounds-checking for entire function
+    @cython.boundscheck(False) # turn off bounds-checking for entire function
     def Circles(self,np.ndarray[DTYPE_t, ndim=2] positions,float r=10):
         cdef Py_ssize_t n_points = positions.shape[0]
         cdef Py_ssize_t n
@@ -723,7 +727,7 @@ cdef class Context:
             for n in range(n_points):
                 nvg.nvgCircle(self.ctx, positions[n,0], positions[n,1], positions[n,2])
 
-    @cython.boundscheck(False) # turn of bounds-checking for entire function
+    @cython.boundscheck(False) # turn off bounds-checking for entire function
     def Polyline(self, np.ndarray[DTYPE_t, ndim=2] polyline,float sw=1):
         cdef Py_ssize_t n_segments = polyline.shape[0]
         cdef Py_ssize_t n
@@ -733,7 +737,7 @@ cdef class Context:
         for n in range(1,n_segments):
             nvg.nvgLineTo(self.ctx,polyline[n,0],polyline[n,1])
 
-    @cython.boundscheck(False) # turn of bounds-checking for entire function
+    @cython.boundscheck(False) # turn off bounds-checking for entire function
     def Polylines(self, np.ndarray[DTYPE_t, ndim=3] polyline,float sw=1):
         cdef Py_ssize_t n_lines = polyline.shape[0]
         cdef Py_ssize_t n_segments = polyline.shape[1]
@@ -746,38 +750,38 @@ cdef class Context:
                 nvg.nvgLineTo(self.ctx,polyline[l,s,0],polyline[l,s,1])
 
 
-GRAPH_RENDER_FPS = 0
-GRAPH_RENDER_MS = 1
-GRAPH_RENDER_PERCENT = 2x3
+# GRAPH_RENDER_FPS = 0
+# GRAPH_RENDER_MS = 1
+# GRAPH_RENDER_PERCENT = 2
 
-cdef class Graph:
-    cdef nvg.PerfGraph fps_graph
-    cdef nvg.PerfGraph* fps_graph_p
-    cdef nvg.NVGcontext* ctx
-    cdef int _x,_y
-    def __cinit__(self,Context base_ctx,int style, const char* name):
-        self.ctx = base_ctx.ctx
-        # we need to create the struct as the lib does not do it for us
-        self.fps_graph
-        # set pointer to struct.
-        self.fps_graph_p = &self.fps_graph
-        nvg.initGraph(self.fps_graph_p,style,name)
+# cdef class Graph:
+#     cdef nvg.PerfGraph fps_graph
+#     cdef nvg.PerfGraph* fps_graph_p
+#     cdef nvg.NVGcontext* ctx
+#     cdef int _x,_y
+#     def __cinit__(self,Context base_ctx,int style, const char* name):
+#         self.ctx = base_ctx.ctx
+#         # we need to create the struct as the lib does not do it for us
+#         self.fps_graph
+#         # set pointer to struct.
+#         self.fps_graph_p = &self.fps_graph
+#         nvg.initGraph(self.fps_graph_p,style,name)
 
-    def __init__(self,Context base_ctx, int style, const char* name):
-        self._x = 0
-        self._y = 0
+#     def __init__(self,Context base_ctx, int style, const char* name):
+#         self._x = 0
+#         self._y = 0
 
-    def __dealloc__(self):
-        pass
+#     def __dealloc__(self):
+#         pass
 
-    def update(self,float val):
-        nvg.updateGraph(self.fps_graph_p, val)
+#     def update(self,float val):
+#         nvg.updateGraph(self.fps_graph_p, val)
 
-    def render(self):
-        nvg.renderGraph(self.ctx,self._x,self._y,self.fps_graph_p)
+#     def render(self):
+#         nvg.renderGraph(self.ctx,self._x,self._y,self.fps_graph_p)
 
-    property pos:
-        def __get__(self):
-            return self._x,self._y
-        def __set__(self,val):
-            self._x,self._y = val
+#     property pos:
+#         def __get__(self):
+#             return self._x,self._y
+#         def __set__(self,val):
+#             self._x,self._y = val

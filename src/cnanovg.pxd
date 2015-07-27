@@ -1,8 +1,9 @@
-cdef extern from 'gl.h':
+cdef extern from 'OpenGL/gl.h':
     # include gl header for nanovg source.
     pass
 
 cdef extern from "../nanovg/src/nanovg.h":
+
     ctypedef struct NVGcontext:
         pass
 
@@ -18,6 +19,53 @@ cdef extern from "../nanovg/src/nanovg.h":
         NVGcolor outerColor
         int image
         int repeat
+
+    ctypedef struct NVGglyphPosition:
+        const char* s
+        float x
+        float minx, maxx
+
+    ctypedef struct NVGtextRow:
+        const char* start
+        const char* end
+        const char* next
+        float width
+        float minx, maxx
+
+    ctypedef struct NVGscissor:
+        float xform[6]
+        float extent[2]
+
+    ctypedef struct NVGvertex:
+        float x,y,u,v
+
+    ctypedef struct NVGpath:
+        int first
+        int count
+        unsigned char closed
+        int nbevel
+        NVGvertex* fill
+        int nfill
+        NVGvertex* stroke
+        int nstroke
+        int winding
+        int convex
+
+    ctypedef void* NVGuserPtr
+    ctypedef struct NVGparams:
+        NVGuserPtr userPtr
+        # int edgeAntiAlias
+        # int (*renderCreate)(void* uptr)
+        # int (*renderCreateTexture)(void* uptr, int type, int w, int h, int imageFlags, const unsigned char* data)
+        # int (*renderDeleteTexture)(void* uptr, int image)
+        # int (*renderUpdateTexture)(void* uptr, int image, int x, int y, int w, int h, const unsigned char* data)
+        # int (*renderGetTextureSize)(void* uptr, int image, int* w, int* h)
+        # void (*renderViewport)(void* uptr, int width, int height)
+        # void (*renderFlush)(void* uptr)
+        # void (*renderFill)(void* uptr, NVGpaint* paint, NVGscissor* scissor, float fringe, const float* bounds, const NVGpath* paths, int npaths)
+        # void (*renderStroke)(void* uptr, NVGpaint* paint, NVGscissor* scissor, float fringe, float strokeWidth, const NVGpath* paths, int npaths)
+        # void (*renderTriangles)(void* uptr, NVGpaint* paint, NVGscissor* scissor, const NVGvertex* verts, int nverts)
+        # void (*renderDelete)(void* uptr)
 
     cdef enum NVGwinding:
         NVG_CCW = 1
@@ -48,30 +96,22 @@ cdef extern from "../nanovg/src/nanovg.h":
         NVG_ALIGN_BOTTOM    = 1<<5,
         NVG_ALIGN_BASELINE  = 1<<6,
 
-    ctypedef struct NVGglyphPosition:
-        const char* s
-        float x
-        float minx, maxx
-
-    ctypedef struct NVGtextRow:
-        const char* start
-        const char* end
-        const char* next
-        float width
-        float minx, maxx
-
     cdef enum NVGimage:
         NVG_IMAGE_GENERATE_MIPMAPS = 1 << 0
 
+    cdef enum NVGtexture:
+        NVG_TEXTURE_ALPHA = 0x01,
+        NVG_TEXTURE_RGBA = 0x02,
 
     void nvgBeginFrame(NVGcontext* ctx, int windowWidth, int windowHeight, float devicePixelRatio)
     void nvgEndFrame(NVGcontext* ctx)
 
+    ### TODO: what are all these global variables for???
     # color
-    NVGcolor nvgRGBAf(float r, float g, float b, float a)
-    NVGcolor nvgRGBA(float r, float g, float b, float a)
-    NVGcolor nvgLerpRGBA(NVGcolor c0, NVGcolor c1, float u)
-    NVGcolor nvgHSLA(float h, float s, float l, unsigned char a)
+    #NVGcolor nvgRGBAf(float r, float g, float b, float a)
+    #NVGcolor nvgRGBA(float r, float g, float b, float a)
+    #NVGcolor nvgLerpRGBA(NVGcolor c0, NVGcolor c1, float u)
+    #NVGcolor nvgHSLA(float h, float s, float l, unsigned char a)
 
     # context state
     void nvgSave(NVGcontext* ctx)
@@ -79,11 +119,12 @@ cdef extern from "../nanovg/src/nanovg.h":
     void nvgReset(NVGcontext* ctx)
 
     # fill/stroke
-    void nvgStrokeColor(NVGcontext* ctx, NVGcolor color)
-    void nvgStrokePaint(NVGcontext* ctx, NVGpaint paint)
+    ### cython bug here?
+    void nvgStrokeColor(NVGcontext* ctx, NVGcolor color) # cython bug here?
+    #void nvgStrokePaint(NVGcontext* ctx, NVGpaint paint) # not here tho?!
 
-    void nvgFillColor(NVGcontext* ctx, NVGcolor color)
-    void nvgFillPaint(NVGcontext* ctx, NVGpaint paint)
+    void nvgFillColor(NVGcontext* ctx, NVGcolor color) # cython bug here?
+    #void nvgFillPaint(NVGcontext* ctx, NVGpaint* paint) # cython bug here?
 
     void nvgMiterLimit(NVGcontext* ctx, float limit)
     void nvgStrokeWidth(NVGcontext* ctx, float size)
@@ -125,9 +166,9 @@ cdef extern from "../nanovg/src/nanovg.h":
     void nvgDeleteImage(NVGcontext* ctx, int image)
 
     # gradients
-    NVGpaint nvgLinearGradient(NVGcontext* ctx, float sx, float sy, float ex, float ey, NVGcolor icol, NVGcolor ocol)
-    NVGpaint nvgBoxGradient(NVGcontext* ctx, float x, float y, float w, float h, float r, float f, NVGcolor icol, NVGcolor ocol)
-    NVGpaint nvgRadialGradient(NVGcontext* ctx, float cx, float cy, float inr, float outr, NVGcolor icol, NVGcolor ocol)
+    NVGpaint nvgLinearGradient(NVGcontext* ctx, float sx, float sy, float ex, float ey, NVGcolor* icol, NVGcolor* ocol) # cython bug here?
+    NVGpaint nvgBoxGradient(NVGcontext* ctx, float x, float y, float w, float h, float r, float f, NVGcolor* icol, NVGcolor* ocol) # cython bug here?
+    NVGpaint nvgRadialGradient(NVGcontext* ctx, float cx, float cy, float inr, float outr, NVGcolor* icol, NVGcolor* ocol) # cython bug here?
     NVGpaint nvgImagePattern(NVGcontext* ctx, float ox, float oy, float ex, float ey, float angle, int image, int repeat, float alpha)
 
 
@@ -172,43 +213,6 @@ cdef extern from "../nanovg/src/nanovg.h":
     void nvgTextMetrics(NVGcontext* ctx, float* ascender, float* descender, float* lineh)
     int nvgTextBreakLines(NVGcontext* ctx, const char* string, const char* end, float breakRowWidth, NVGtextRow* rows, int maxRows)
 
-    cdef enum NVGtexture:
-        NVG_TEXTURE_ALPHA = 0x01,
-        NVG_TEXTURE_RGBA = 0x02,
-
-    ctypedef struct NVGscissor:
-        float xform[6]
-        float extent[2]
-
-    ctypedef struct NVGvertex:
-        float x,y,u,v
-
-    ctypedef struct NVGpath:
-        int first
-        int count
-        unsigned char closed
-        int nbevel
-        NVGvertex* fill
-        int nfill
-        NVGvertex* stroke
-        int nstroke
-        int winding
-        int convex
-
-    ctypedef struct NVGparams:
-        void* userPtr
-        # int edgeAntiAlias
-        # int (*renderCreate)(void* uptr)
-        # int (*renderCreateTexture)(void* uptr, int type, int w, int h, int imageFlags, const unsigned char* data)
-        # int (*renderDeleteTexture)(void* uptr, int image)
-        # int (*renderUpdateTexture)(void* uptr, int image, int x, int y, int w, int h, const unsigned char* data)
-        # int (*renderGetTextureSize)(void* uptr, int image, int* w, int* h)
-        # void (*renderViewport)(void* uptr, int width, int height)
-        # void (*renderFlush)(void* uptr)
-        # void (*renderFill)(void* uptr, NVGpaint* paint, NVGscissor* scissor, float fringe, const float* bounds, const NVGpath* paths, int npaths)
-        # void (*renderStroke)(void* uptr, NVGpaint* paint, NVGscissor* scissor, float fringe, float strokeWidth, const NVGpath* paths, int npaths)
-        # void (*renderTriangles)(void* uptr, NVGpaint* paint, NVGscissor* scissor, const NVGvertex* verts, int nverts)
-        # void (*renderDelete)(void* uptr)
 
     NVGcontext* nvgCreateInternal(NVGparams* params)
     void nvgDeleteInternal(NVGcontext* ctx)
@@ -240,7 +244,7 @@ cdef extern from '../nanovg/example/perf.h':
         GRAPH_RENDER_PERCENT
 
 
-    ctypedef struct PerfGraph:
+    cdef struct PerfGraph:
         # pass
         int style
         char name[32]

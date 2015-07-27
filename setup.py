@@ -6,7 +6,7 @@ from distutils.extension import Extension
 from Cython.Build import cythonize
 
 if platform.system() == 'Darwin':
-	includes = ['/System/Library/Frameworks/OpenGL.framework/Versions/Current/Headers/',numpy.get_include()]
+	includes = ['OpenGL/gl.h',numpy.get_include()]
 	f = '-framework'
 	link_args = [f, 'OpenGL'] # f, 'Cocoa', f, 'IOKit', f, 'CoreVideo'
 	libs = []

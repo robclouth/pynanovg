@@ -1,5 +1,5 @@
 import logging
-from glfw import *
+import glfw
 import OpenGL
 from OpenGL.GL import *
 
@@ -41,12 +41,12 @@ def demo():
 
     # Callback functions
     def on_resize(window,w, h):
-        active_window = glfwGetCurrentContext()
-        glfwMakeContextCurrent(window)
+        active_window = glfw.get_current_context()
+        glfw.make_context_current(window)
         # norm_size = normalize((w,h),glfwGetWindowSize(window))
         # fb_size = denormalize(norm_size,glfwGetFramebufferSize(window))
         adjust_gl_view(w,h,window)
-        glfwMakeContextCurrent(active_window)
+        glfw.make_context_current(active_window)
         global width
         global height
         width,height = w,h
@@ -56,15 +56,15 @@ def demo():
 
     def on_key(window, key, scancode, action, mods):
         # print "key pressed: ", key
-        if action == GLFW_PRESS:
-            if key == GLFW_KEY_ESCAPE:
+        if action == glfw.PRESS:
+            if key == glfw.KEY_ESCAPE:
                 on_close(window)
 
     def on_char(window,char):
         pass
 
     def on_button(window,button, action, mods):
-        pos = glfwGetCursorPos(window)
+        pos = glfw.get_cursor_pos(window)
         # pos = normalize(pos,glfwGetWindowSize(window))
         # pos = denormalize(pos,(frame.img.shape[1],frame.img.shape[0]) ) # Position in img pixels
 
@@ -94,30 +94,29 @@ def demo():
         pass
 
     # get glfw started
-    glfwInit()
-    window = glfwCreateWindow(width, height, "Python NanoVG Demo", None, None)
-    glfwSetWindowPos(window,0,0)
+    glfw.init()
+    window = glfw.create_window(width, height, "Python NanoVG Demo", None, None)
+    glfw.set_window_pos(window,0,0)
 
     # Register callbacks window
-    glfwSetWindowSizeCallback(window,on_resize)
-    glfwSetWindowCloseCallback(window,on_close)
-    glfwSetWindowIconifyCallback(window,on_iconify)
-    glfwSetKeyCallback(window,on_key)
-    glfwSetCharCallback(window,on_char)
-    glfwSetMouseButtonCallback(window,on_button)
-    glfwSetCursorPosCallback(window,on_pos)
-    glfwSetScrollCallback(window,on_scroll)
-
+    glfw.set_window_size_callback(window,on_resize)
+    glfw.set_window_close_callback(window,on_close)
+    glfw.set_window_iconify_callback(window,on_iconify)
+    glfw.set_key_callback(window,on_key)
+    glfw.set_char_callback(window,on_char)
+    glfw.set_mouse_button_callback(window,on_button)
+    glfw.set_cursor_pos_callback(window,on_pos)
+    glfw.set_scroll_callback(window,on_scroll)
 
     basic_gl_setup()
 
     # glfwSwapInterval(0)
-    glfwMakeContextCurrent(window)
+    glfw.make_context_current(window)
 
-    # vg = nanovg.Context()
     import nanovg
-    nanovg.create_shared_context() # only needs to be called once per process.
-    from nanovg import vg, colorRGBAf,GRAPH_RENDER_FPS,GRAPH_RENDER_PERCENT
+    vg = nanovg.Context()
+    #nanovg.create_shared_context() # only needs to be called once per process.
+    #from nanovg import vg, colorRGBAf,GRAPH_RENDER_FPS,GRAPH_RENDER_PERCENT
     vg.createFont("light", "../nanovg/example/Roboto-Light.ttf")
     vg.createFont("regular", "../nanovg/example/Roboto-Regular.ttf")
     vg.createFont("bold", "../nanovg/example/Roboto-Bold.ttf")
@@ -125,16 +124,16 @@ def demo():
     img = vg.createImage("../nanovg/example/images/image2.jpg", 0)
 
     pos = np.arange(0,10,.1,dtype=np.float)
-    print len(pos)
+    print( len(pos) )
     pos = np.vstack((pos*5,2*pos+(np.sin(pos)*100))).T
-    print pos.shape
+    print( pos.shape )
 
     #used for the graphs
     vg.createFont("sans", "../nanovg/example/Roboto-Regular.ttf")
-    fps = nanovg.Graph(vg,GRAPH_RENDER_FPS,"Framerate")
-    fps.pos= (20,20)
-    cpu = nanovg.Graph(vg,GRAPH_RENDER_PERCENT,"CPU load of Process")
-    cpu.pos = (240,20)
+    #fps = nanovg.Graph(vg,GRAPH_RENDER_FPS,"Framerate")
+    #fps.pos= (20,20)
+    #cpu = nanovg.Graph(vg,GRAPH_RENDER_PERCENT,"CPU load of Process")
+    #cpu.pos = (240,20)
     ts = time.time()
 
     import os
@@ -154,18 +153,20 @@ def demo():
         # res = vg.textBounds(0.0, 0.0, "here is my text", "t")
         # vg.save()
         # draw rect
-        p = vg.linearGradient(0.0, 0.0, 1000.0, 600.0, colorRGBAf(0.0,0.0,1.0,1.0), colorRGBAf(0.,1.,0.2,0.5))
+        #p = vg.linearGradient(0.0, 0.0, 1000.0, 600.0, colorRGBAf(0.0,0.0,1.0,1.0), colorRGBAf(0.,1.,0.2,0.5))
         # rg = vg.radialGradient(0.0, 0.0, 100.0, 120.0, colorRGBAf(0.0,0.0,1.0,1.0), colorRGBAf(0.,1.,0.2,0.5))
         vg.beginPath()
         # vg.fillColor(colorRGBAf(0.2,0.2,0.2,0.4))
         vg.roundedRect(10.0, 10.0, 490.0, 290.0, 5.0)
 
-        vg.fillPaint(p)
+        #vg.fillPaint(p)
+        vg.fillColor(1.0, 0.0, 0.0, 0.8)
         vg.fill()
 
-        rg = vg.linearGradient(500.0, 300.0, 100.0, 200.0, colorRGBAf(0.0,0.0,0.0,0.0), colorRGBAf(0.,1.,0.2,0.5))
+        #rg = vg.linearGradient(500.0, 300.0, 100.0, 200.0, colorRGBAf(0.0,0.0,0.0,0.0), colorRGBAf(0.,1.,0.2,0.5))
         vg.beginPath()
-        vg.fillPaint(rg)
+        #vg.fillPaint(rg)
+        vg.fillColor(0.0, 1.0, 0.0, 0.8)
         vg.strokeColor(colorRGBAf(0.0,0.4,0.7,0.9))
         vg.strokeWidth(0.5)
         if 0:
@@ -188,36 +189,36 @@ def demo():
 
         vg.fontFace("bold")
         vg.fontSize(24.0)
-        vg.fillColor(colorRGBAf(0.,0.,0.,1.))
+        vg.fillColor(0.0, 0.0, 0.0, 0.9)
         vg.text(15.0, 30.0, txt)
 
         vg.fontFace("regular")
-        vg.fillColor(colorRGBAf(1.,1.,1.,1.))
+        vg.fillColor(1.0,1.0,1.0,1.0)
         vg.text(15.0, 50.0, txt)
 
         vg.fontFace("light")
-        vg.fillColor(colorRGBAf(0.,1.,0.2,1.))
+        vg.fillColor(0.0,1.0,0.2,1.0)
         vg.text(15.0, 70.0, txt)
         # print random.random()
         dt,ts = time.time()-ts,time.time()
         # print dt
-        fps.update(dt)
-        fps.render()
+        #fps.update(dt)
+        #fps.render()
 
 
-        pct = ps.get_cpu_percent()
+        #pct = ps.get_cpu_percent()
         # pct = psutil.cpu_percent()
-        cpu.update(pct)
-        cpu.render()
+        #cpu.update(pct)
+        #cpu.render()
         vg.endFrame()
         vg.restore()
-        glfwSwapBuffers(window)
-        glfwPollEvents()
+        glfw.swap_buffers(window)
+        glfw.poll_events()
         # time.sleep(.03)
 
     vg.reset()
-    glfwDestroyWindow(window)
-    glfwTerminate()
+    glfw.destroy_window(window)
+    glfw.terminate()
     logger.debug("Process done")
 
 if __name__ == '__main__':
