@@ -2,7 +2,7 @@ cdef extern from 'OpenGL/gl.h':
     # include gl header for nanovg source.
     pass
 
-cdef extern from "../nanovg/src/nanovg.h":
+cdef extern from "./nanovg/src/nanovg.h":
 
     ctypedef struct NVGcontext:
         pass
@@ -221,7 +221,7 @@ cdef extern from "../nanovg/src/nanovg.h":
 
     void nvgDebugDumpPathCache(NVGcontext* ctx)
 
-cdef extern from "../nanovg/src/nanovg_gl.h":
+cdef extern from "./nanovg/src/nanovg_gl.h":
 
     # NVGcontext* nvgCreateGL3(int flags)
     # void nvgDeleteGL3(NVGcontext* ctx)
@@ -234,32 +234,3 @@ cdef extern from "../nanovg/src/nanovg_gl.h":
 
     ctypedef struct GLNVGcontext:
         pass
-
-
-cdef extern from '../nanovg/example/perf.h':
-
-    cdef enum GraphrenderStyle:
-        GRAPH_RENDER_FPS
-        GRAPH_RENDER_MS
-        GRAPH_RENDER_PERCENT
-
-
-    cdef struct PerfGraph:
-        # pass
-        int style
-        char name[32]
-        float values[100] #do not change! This is set in perf.h and used in perf.c
-        int head
-
-    void initGraph(PerfGraph* fps, int style, const char* name)
-    void updateGraph(PerfGraph* fps, float frameTime)
-    void renderGraph(NVGcontext* vg, float x, float y, PerfGraph* fps)
-    float getGraphAverage(PerfGraph* fps)
-
-
-    cdef struct GPUtimer:
-        pass
-
-    void initGPUTimer(GPUtimer* timer)
-    void startGPUTimer(GPUtimer* timer)
-    int stopGPUTimer(GPUtimer* timer, float* times, int maxTimes)

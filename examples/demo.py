@@ -113,15 +113,15 @@ def demo():
     # glfwSwapInterval(0)
     glfw.make_context_current(window)
 
-    import nanovg
+    from pynanovg import nanovg
     vg = nanovg.Context()
     #nanovg.create_shared_context() # only needs to be called once per process.
     #from nanovg import vg, colorRGBAf,GRAPH_RENDER_FPS,GRAPH_RENDER_PERCENT
-    vg.createFont("light", "../nanovg/example/Roboto-Light.ttf")
-    vg.createFont("regular", "../nanovg/example/Roboto-Regular.ttf")
-    vg.createFont("bold", "../nanovg/example/Roboto-Bold.ttf")
+    vg.createFont(b'light', b'../nanovg/example/Roboto-Light.ttf')
+    vg.createFont(b'regular', b'../nanovg/example/Roboto-Regular.ttf')
+    vg.createFont(b'bold', b'../nanovg/example/Roboto-Bold.ttf')
 
-    img = vg.createImage("../nanovg/example/images/image2.jpg", 0)
+    img = vg.createImage(b'../nanovg/example/images/image2.jpg', 0)
 
     pos = np.arange(0,10,.1,dtype=np.float)
     print( len(pos) )
@@ -129,20 +129,20 @@ def demo():
     print( pos.shape )
 
     #used for the graphs
-    vg.createFont("sans", "../nanovg/example/Roboto-Regular.ttf")
+    vg.createFont(b'sans', b'../nanovg/example/Roboto-Regular.ttf')
     #fps = nanovg.Graph(vg,GRAPH_RENDER_FPS,"Framerate")
     #fps.pos= (20,20)
     #cpu = nanovg.Graph(vg,GRAPH_RENDER_PERCENT,"CPU load of Process")
     #cpu.pos = (240,20)
     ts = time.time()
 
-    import os
-    import psutil
+    #import os
+    #import psutil
 
-    pid = os.getpid()
-    ps = psutil.Process(pid)
+   # pid = os.getpid()
+   # ps = psutil.Process(pid)
 
-    import loaded_module
+    #import loaded_module
 
     while not quit:
         clear_gl_screen()
@@ -167,11 +167,11 @@ def demo():
         vg.beginPath()
         #vg.fillPaint(rg)
         vg.fillColor(0.0, 1.0, 0.0, 0.8)
-        vg.strokeColor(colorRGBAf(0.0,0.4,0.7,0.9))
-        vg.strokeWidth(0.5)
+        vg.strokeColor(0.0, 0.4, 0.7, 0.9)
+        vg.strokeWidth(2.0)
         if 0:
             vg.beginPath()
-            vg.moveTo(0,0)
+            vg.moveTo(100,100)
             for x,y in pos:
                 vg.lineTo(x,y)
         else:
@@ -180,27 +180,27 @@ def demo():
 
         vg.fill()
         vg.stroke()
-        loaded_module.draw()
+        #loaded_module.draw()
         # test font rendering
-        txt = "Hello World - Python NanoVG bindings."
+        txt = b'Hello World - Python NanoVG bindings.'
         # print vg.textBounds(0,0,txt)
         # print vg.textMetrics(1.)
         # print vg.textBreakLines(txt)
 
-        vg.fontFace("bold")
+        vg.fontFace(b'bold')
         vg.fontSize(24.0)
         vg.fillColor(0.0, 0.0, 0.0, 0.9)
         vg.text(15.0, 30.0, txt)
 
-        vg.fontFace("regular")
-        vg.fillColor(1.0,1.0,1.0,1.0)
+        vg.fontFace(b'regular') 
+        vg.fillColor(1.0, 1.0, 1.0, 1.0)
         vg.text(15.0, 50.0, txt)
 
-        vg.fontFace("light")
+        vg.fontFace(b'light')
         vg.fillColor(0.0,1.0,0.2,1.0)
         vg.text(15.0, 70.0, txt)
         # print random.random()
-        dt,ts = time.time()-ts,time.time()
+        #dt,ts = time.time()-ts,time.time()
         # print dt
         #fps.update(dt)
         #fps.render()
