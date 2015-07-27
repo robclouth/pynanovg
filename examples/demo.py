@@ -113,8 +113,8 @@ def demo():
     # glfwSwapInterval(0)
     glfw.make_context_current(window)
 
-    from pynanovg import nanovg
-    vg = nanovg.Context()
+    from pynanovg import pynanovg
+    vg = pynanovg.Context()
     #nanovg.create_shared_context() # only needs to be called once per process.
     #from nanovg import vg, colorRGBAf,GRAPH_RENDER_FPS,GRAPH_RENDER_PERCENT
     vg.createFont(b'light', b'../nanovg/example/Roboto-Light.ttf')
@@ -142,7 +142,7 @@ def demo():
    # pid = os.getpid()
    # ps = psutil.Process(pid)
 
-    #import loaded_module
+    import loaded_module
 
     while not quit:
         clear_gl_screen()
@@ -169,18 +169,20 @@ def demo():
         vg.fillColor(0.0, 1.0, 0.0, 0.8)
         vg.strokeColor(0.0, 0.4, 0.7, 0.9)
         vg.strokeWidth(2.0)
-        if 0:
-            vg.beginPath()
-            vg.moveTo(100,100)
-            for x,y in pos:
-                vg.lineTo(x,y)
-        else:
-            # pass
-            vg.Polyline(pos)
+
+        #if 0:
+        vg.beginPath()
+        vg.moveTo(100,100)
+        for x,y in pos:
+            vg.lineTo(x,y)
+
+        #else:
+        #    # pass
+        #    vg.Polyline(pos)
 
         vg.fill()
         vg.stroke()
-        #loaded_module.draw()
+        loaded_module.draw(vg)
         # test font rendering
         txt = b'Hello World - Python NanoVG bindings.'
         # print vg.textBounds(0,0,txt)

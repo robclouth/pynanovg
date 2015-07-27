@@ -1,36 +1,9 @@
-
 import cython
 import numpy as np
 cimport numpy as np
 DTYPE = np.float
 ctypedef np.float_t DTYPE_t
-cimport cnanovg as nvg
-
-
-
-
-
-# create a Context object that can be imported anyware.
-# This allows for use of one nanovg context in many submodules
-# within one process without having to pass along
-# a user created nanovg.Context
-# This is optional:
-# You can create the Context object yourself instead just as well.
-# vg = None
-# def create_shared_context():
-#     global vg
-#     if vg is None:
-#         vg = Context()
-
-
-#def colorRGBAf(float r=0.0, float g=0.0, float b=0.0, float a=0.0):
-#    return nvg.nvgRGBAf(r,g,b,a)
-
-#cpdef color(float r=0.0, float g=0.0, float b=0.0, float a=0.0):
-#   cdef nvg.NVGcolor c
-#    c = nvg.NVGcolor(r, g, b, a)
-#    return c
-
+cimport nanovg as nvg
 
 class NVGError(Exception):
     """General Exception for this module"""
@@ -38,6 +11,9 @@ class NVGError(Exception):
         super(NVGError, self).__init__()
         self.arg = arg
 
+#
+# context class holds nanovg graphics context pointer and provides drawing methods
+#
 cdef class Context:
     cdef nvg.NVGcontext *ctx
 
@@ -749,40 +725,3 @@ cdef class Context:
             nvg.nvgMoveTo(self.ctx,polyline[l,0,0],polyline[l,0,1])
             for s in range(1,n_segments):
                 nvg.nvgLineTo(self.ctx,polyline[l,s,0],polyline[l,s,1])
-
-
-# GRAPH_RENDER_FPS = 0
-# GRAPH_RENDER_MS = 1
-# GRAPH_RENDER_PERCENT = 2
-
-# cdef class Graph:
-#     cdef nvg.PerfGraph fps_graph
-#     cdef nvg.PerfGraph* fps_graph_p
-#     cdef nvg.NVGcontext* ctx
-#     cdef int _x,_y
-#     def __cinit__(self,Context base_ctx,int style, const char* name):
-#         self.ctx = base_ctx.ctx
-#         # we need to create the struct as the lib does not do it for us
-#         self.fps_graph
-#         # set pointer to struct.
-#         self.fps_graph_p = &self.fps_graph
-#         nvg.initGraph(self.fps_graph_p,style,name)
-
-#     def __init__(self,Context base_ctx, int style, const char* name):
-#         self._x = 0
-#         self._y = 0
-
-#     def __dealloc__(self):
-#         pass
-
-#     def update(self,float val):
-#         nvg.updateGraph(self.fps_graph_p, val)
-
-#     def render(self):
-#         nvg.renderGraph(self.ctx,self._x,self._y,self.fps_graph_p)
-
-#     property pos:
-#         def __get__(self):
-#             return self._x,self._y
-#         def __set__(self,val):
-#             self._x,self._y = val

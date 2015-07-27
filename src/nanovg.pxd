@@ -2,7 +2,7 @@ cdef extern from 'OpenGL/gl.h':
     # include gl header for nanovg source.
     pass
 
-cdef extern from "./nanovg/src/nanovg.h":
+cdef extern from "../nanovg/src/nanovg.h":
 
     ctypedef struct NVGcontext:
         pass
@@ -106,25 +106,17 @@ cdef extern from "./nanovg/src/nanovg.h":
     void nvgBeginFrame(NVGcontext* ctx, int windowWidth, int windowHeight, float devicePixelRatio)
     void nvgEndFrame(NVGcontext* ctx)
 
-    ### TODO: what are all these global variables for???
-    # color
-    #NVGcolor nvgRGBAf(float r, float g, float b, float a)
-    #NVGcolor nvgRGBA(float r, float g, float b, float a)
-    #NVGcolor nvgLerpRGBA(NVGcolor c0, NVGcolor c1, float u)
-    #NVGcolor nvgHSLA(float h, float s, float l, unsigned char a)
-
     # context state
     void nvgSave(NVGcontext* ctx)
     void nvgRestore(NVGcontext* ctx)
     void nvgReset(NVGcontext* ctx)
 
     # fill/stroke
-    ### cython bug here?
-    void nvgStrokeColor(NVGcontext* ctx, NVGcolor color) # cython bug here?
-    #void nvgStrokePaint(NVGcontext* ctx, NVGpaint paint) # not here tho?!
+    void nvgStrokeColor(NVGcontext* ctx, NVGcolor color)
+    void nvgStrokePaint(NVGcontext* ctx, NVGpaint paint)
 
-    void nvgFillColor(NVGcontext* ctx, NVGcolor color) # cython bug here?
-    #void nvgFillPaint(NVGcontext* ctx, NVGpaint* paint) # cython bug here?
+    void nvgFillColor(NVGcontext* ctx, NVGcolor color)
+    void nvgFillPaint(NVGcontext* ctx, NVGpaint* paint)
 
     void nvgMiterLimit(NVGcontext* ctx, float limit)
     void nvgStrokeWidth(NVGcontext* ctx, float size)
@@ -166,9 +158,9 @@ cdef extern from "./nanovg/src/nanovg.h":
     void nvgDeleteImage(NVGcontext* ctx, int image)
 
     # gradients
-    NVGpaint nvgLinearGradient(NVGcontext* ctx, float sx, float sy, float ex, float ey, NVGcolor* icol, NVGcolor* ocol) # cython bug here?
-    NVGpaint nvgBoxGradient(NVGcontext* ctx, float x, float y, float w, float h, float r, float f, NVGcolor* icol, NVGcolor* ocol) # cython bug here?
-    NVGpaint nvgRadialGradient(NVGcontext* ctx, float cx, float cy, float inr, float outr, NVGcolor* icol, NVGcolor* ocol) # cython bug here?
+    NVGpaint nvgLinearGradient(NVGcontext* ctx, float sx, float sy, float ex, float ey, NVGcolor* icol, NVGcolor* ocol)
+    NVGpaint nvgBoxGradient(NVGcontext* ctx, float x, float y, float w, float h, float r, float f, NVGcolor* icol, NVGcolor* ocol)
+    NVGpaint nvgRadialGradient(NVGcontext* ctx, float cx, float cy, float inr, float outr, NVGcolor* icol, NVGcolor* ocol)
     NVGpaint nvgImagePattern(NVGcontext* ctx, float ox, float oy, float ex, float ey, float angle, int image, int repeat, float alpha)
 
 
@@ -221,7 +213,7 @@ cdef extern from "./nanovg/src/nanovg.h":
 
     void nvgDebugDumpPathCache(NVGcontext* ctx)
 
-cdef extern from "./nanovg/src/nanovg_gl.h":
+cdef extern from "../nanovg/src/nanovg_gl.h":
 
     # NVGcontext* nvgCreateGL3(int flags)
     # void nvgDeleteGL3(NVGcontext* ctx)
