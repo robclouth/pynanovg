@@ -1,8 +1,10 @@
+# distutils: include_dirs = nanovg/src
+
 cdef extern from 'OpenGL/gl.h':
     # include gl header for nanovg source.
     pass
 
-cdef extern from "../nanovg/src/nanovg.h":
+cdef extern from "nanovg.h":
 
     ctypedef struct NVGcontext:
         pass
@@ -213,7 +215,7 @@ cdef extern from "../nanovg/src/nanovg.h":
 
     void nvgDebugDumpPathCache(NVGcontext* ctx)
 
-cdef extern from "../nanovg/src/nanovg_gl.h":
+cdef extern from "nanovg_gl.h":
 
     # NVGcontext* nvgCreateGL3(int flags)
     # void nvgDeleteGL3(NVGcontext* ctx)

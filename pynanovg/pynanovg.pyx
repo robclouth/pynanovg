@@ -1,9 +1,12 @@
+# distutils: sources = nanovg/src/nanovg.c
+
+cimport cnanovg as nvg
+
 import cython
 import numpy as np
 cimport numpy as np
 DTYPE = np.float
 ctypedef np.float_t DTYPE_t
-cimport nanovg as nvg
 
 class NVGError(Exception):
     """General Exception for this module"""
