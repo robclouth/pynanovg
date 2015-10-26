@@ -1,16 +1,17 @@
 import logging
+
+import numpy as np
 import glfw
 import OpenGL
 from OpenGL.GL import *
+import pynanovg
 
-import numpy as np
 # create logger for the context of this function
 logger = logging.getLogger(__name__)
 
 import time
 
-width, height = (1000,600)
-
+width, height = (1000, 600)
 
 def basic_gl_setup():
     glEnable( GL_POINT_SPRITE )
@@ -34,7 +35,6 @@ def clear_gl_screen():
     glClearColor(0.7, 0.7, 0.7, 1.0)
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT)
 
-
 def demo():
     global quit
     quit = False
@@ -51,34 +51,21 @@ def demo():
         global height
         width,height = w,h
 
-    def on_iconify(window,iconfied):
-        pass
-
     def on_key(window, key, scancode, action, mods):
         # print "key pressed: ", key
         if action == glfw.PRESS:
             if key == glfw.KEY_ESCAPE:
                 on_close(window)
 
-    def on_char(window,char):
-        pass
-
     def on_button(window,button, action, mods):
         pos = glfw.get_cursor_pos(window)
         # pos = normalize(pos,glfwGetWindowSize(window))
         # pos = denormalize(pos,(frame.img.shape[1],frame.img.shape[0]) ) # Position in img pixels
 
-    def on_pos(window,x, y):
-        pass
-
-    def on_scroll(window,x,y):
-        pass
-
     def on_close(window):
         global quit
         quit = True
         logger.info('Process closing from window')
-
 
     def draw_lines(x, y, w):
         for i in range(1000):
@@ -99,21 +86,16 @@ def demo():
     glfw.set_window_pos(window,0,0)
 
     # Register callbacks window
-    glfw.set_window_size_callback(window,on_resize)
-    glfw.set_window_close_callback(window,on_close)
-    glfw.set_window_iconify_callback(window,on_iconify)
-    glfw.set_key_callback(window,on_key)
-    glfw.set_char_callback(window,on_char)
-    glfw.set_mouse_button_callback(window,on_button)
-    glfw.set_cursor_pos_callback(window,on_pos)
-    glfw.set_scroll_callback(window,on_scroll)
+    glfw.set_window_size_callback(window, on_resize)
+    glfw.set_window_close_callback(window, on_close)
+    glfw.set_key_callback(window, on_key)
+    glfw.set_mouse_button_callback(window, on_button)
 
     basic_gl_setup()
 
     # glfwSwapInterval(0)
     glfw.make_context_current(window)
 
-    from pynanovg import pynanovg
     vg = pynanovg.Context()
     #nanovg.create_shared_context() # only needs to be called once per process.
     #from nanovg import vg, colorRGBAf,GRAPH_RENDER_FPS,GRAPH_RENDER_PERCENT
@@ -124,9 +106,9 @@ def demo():
     img = vg.createImage(b'../nanovg/example/images/image2.jpg', 0)
 
     pos = np.arange(0,10,.1,dtype=np.float)
-    print( len(pos) )
+    print(len(pos))
     pos = np.vstack((pos*5,2*pos+(np.sin(pos)*100))).T
-    print( pos.shape )
+    print(pos.shape)
 
     #used for the graphs
     vg.createFont(b'sans', b'../nanovg/example/Roboto-Regular.ttf')
@@ -139,8 +121,8 @@ def demo():
     #import os
     #import psutil
 
-   # pid = os.getpid()
-   # ps = psutil.Process(pid)
+    # pid = os.getpid()
+    # ps = psutil.Process(pid)
 
     import loaded_module
 
@@ -194,7 +176,7 @@ def demo():
         vg.fillColor(0.0, 0.0, 0.0, 0.9)
         vg.text(15.0, 30.0, txt)
 
-        vg.fontFace(b'regular') 
+        vg.fontFace(b'regular')
         vg.fillColor(1.0, 1.0, 1.0, 1.0)
         vg.text(15.0, 50.0, txt)
 
