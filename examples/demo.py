@@ -14,7 +14,7 @@ import time
 width, height = (1000, 600)
 
 def basic_gl_setup():
-    glEnable( GL_POINT_SPRITE )
+    glEnable(GL_POINT_SPRITE)
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE) # overwrite pointsize
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
     glEnable(GL_BLEND)
@@ -24,8 +24,8 @@ def adjust_gl_view(w,h,window):
     """
     adjust view onto our scene.
     """
-    h = max(h,1)
-    w = max(w,1)
+    h = max(h, 1)
+    w = max(w, 1)
 
     hdpi_factor = glfwGetFramebufferSize(window)[0]/glfwGetWindowSize(window)[0]
     w,h = w*hdpi_factor,h*hdpi_factor
@@ -40,7 +40,7 @@ def demo():
     quit = False
 
     # Callback functions
-    def on_resize(window,w, h):
+    def on_resize(window, w, h):
         active_window = glfw.get_current_context()
         glfw.make_context_current(window)
         # norm_size = normalize((w,h),glfwGetWindowSize(window))
@@ -77,13 +77,10 @@ def demo():
             vg.stroke()
             y += 1.
 
-    def draw_bezier():
-        pass
-
     # get glfw started
     glfw.init()
     window = glfw.create_window(width, height, "Python NanoVG Demo", None, None)
-    glfw.set_window_pos(window,0,0)
+    glfw.set_window_pos(window, 0, 0)
 
     # Register callbacks window
     glfw.set_window_size_callback(window, on_resize)
@@ -105,7 +102,7 @@ def demo():
 
     img = vg.createImage(b'../nanovg/example/images/image2.jpg', 0)
 
-    pos = np.arange(0,10,.1,dtype=np.float)
+    pos = np.arange(0, 10, .1, dtype=np.float)
     print(len(pos))
     pos = np.vstack((pos*5,2*pos+(np.sin(pos)*100))).T
     print(pos.shape)
@@ -118,18 +115,8 @@ def demo():
     #cpu.pos = (240,20)
     ts = time.time()
 
-    #import os
-    #import psutil
 
-    # pid = os.getpid()
-    # ps = psutil.Process(pid)
-
-    import loaded_module
-
-    while not quit:
-        clear_gl_screen()
-        # show some nanovg graphics
-
+    def render(vg):
         vg.beginFrame(width, height, float(width)/float(height))
         # draw_lines(0.,0.,100.)
         # res = vg.textBounds(0.0, 0.0, "here is my text", "t")
@@ -164,7 +151,7 @@ def demo():
 
         vg.fill()
         vg.stroke()
-        loaded_module.draw(vg)
+
         # test font rendering
         txt = b'Hello World - Python NanoVG bindings.'
         # print vg.textBounds(0,0,txt)
@@ -189,13 +176,22 @@ def demo():
         #fps.update(dt)
         #fps.render()
 
-
         #pct = ps.get_cpu_percent()
         # pct = psutil.cpu_percent()
         #cpu.update(pct)
         #cpu.render()
         vg.endFrame()
         vg.restore()
+
+    #import os
+    #import psutil
+
+    # pid = os.getpid()
+    # ps = psutil.Process(pid)
+
+    while not quit:
+        clear_gl_screen()
+        render(vg)
         glfw.swap_buffers(window)
         glfw.poll_events()
         # time.sleep(.03)
