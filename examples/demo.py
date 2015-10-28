@@ -1,176 +1,28 @@
 import logging
 
 import numpy as np
-import glfw
-import OpenGL
-from OpenGL.GL import *
 import pynanovg
-
-# create logger for the context of this function
-logger = logging.getLogger(__name__)
 
 import time
 
-def basic_gl_setup():
-    glEnable(GL_POINT_SPRITE)
-    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE) # overwrite pointsize
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-    glEnable(GL_BLEND)
-    glClearColor(0., 0., 0., 1.0)
+from base import Base
 
-def adjust_gl_view(w,h,window):
-    """
-    adjust view onto our scene.
-    """
-    h = max(h, 1)
-    w = max(w, 1)
+def draw_lines(x, y, w):
+    for i in range(1000):
+        sw = (i+0.05)*.1
+        vg.strokeWidth(sw)
+        vg.beginPath()
+        vg.moveTo(x,y)
+        vg.lineTo(x+1000.,y)
+        vg.stroke()
+        y += 1.
 
-    hdpi_factor = glfwGetFramebufferSize(window)[0]/glfwGetWindowSize(window)[0]
-    w,h = w*hdpi_factor,h*hdpi_factor
-    glViewport(0, 0, w, h)
-
-def clear_gl_screen():
-    glClearColor(0.7, 0.7, 0.7, 1.0)
-    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT)
-
-def render(vg, width, height):
-    vg.beginFrame(width, height, float(width)/float(height))
-    # draw_lines(0.,0.,100.)
-    # res = vg.textBounds(0.0, 0.0, "here is my text", "t")
-    # vg.save()
-    # draw rect
-    #p = vg.linearGradient(0.0, 0.0, 1000.0, 600.0, colorRGBAf(0.0,0.0,1.0,1.0), colorRGBAf(0.,1.,0.2,0.5))
-    # rg = vg.radialGradient(0.0, 0.0, 100.0, 120.0, colorRGBAf(0.0,0.0,1.0,1.0), colorRGBAf(0.,1.,0.2,0.5))
-    vg.beginPath()
-    # vg.fillColor(colorRGBAf(0.2,0.2,0.2,0.4))
-    vg.roundedRect(10.0, 10.0, 490.0, 290.0, 5.0)
-
-    #vg.fillPaint(p)
-    vg.fillColor(1.0, 0.0, 0.0, 0.8)
-    vg.fill()
-
-    #rg = vg.linearGradient(500.0, 300.0, 100.0, 200.0, colorRGBAf(0.0,0.0,0.0,0.0), colorRGBAf(0.,1.,0.2,0.5))
-    vg.beginPath()
-    #vg.fillPaint(rg)
-    vg.fillColor(0.0, 1.0, 0.0, 0.8)
-    vg.strokeColor(0.0, 0.4, 0.7, 0.9)
-    vg.strokeWidth(2.0)
-
-    pos = np.arange(0, 10, .1, dtype=np.float)
-    print(len(pos))
-    pos = np.vstack((pos*5,2*pos+(np.sin(pos)*100))).T
-    print(pos.shape)
-
-    #if 0:
-    vg.beginPath()
-    vg.moveTo(100,100)
-    for x,y in pos:
-        vg.lineTo(x,y)
-
-    #else:
-    #    # pass
-    #    vg.Polyline(pos)
-
-    vg.fill()
-    vg.stroke()
-
-    # test font rendering
-    txt = b'Hello World - Python NanoVG bindings.'
-    # print vg.textBounds(0,0,txt)
-    # print vg.textMetrics(1.)
-    # print vg.textBreakLines(txt)
-
-    vg.fontFace(b'bold')
-    vg.fontSize(24.0)
-    vg.fillColor(0.0, 0.0, 0.0, 0.9)
-    vg.text(15.0, 30.0, txt)
-
-    vg.fontFace(b'regular')
-    vg.fillColor(1.0, 1.0, 1.0, 1.0)
-    vg.text(15.0, 50.0, txt)
-
-    vg.fontFace(b'light')
-    vg.fillColor(0.0,1.0,0.2,1.0)
-    vg.text(15.0, 70.0, txt)
-    # print random.random()
-    #dt,ts = time.time()-ts,time.time()
-    # print dt
-    #fps.update(dt)
-    #fps.render()
-
-    #pct = ps.get_cpu_percent()
-    # pct = psutil.cpu_percent()
-    #cpu.update(pct)
-    #cpu.render()
-    vg.endFrame()
-    vg.restore()
-
-    #import os
-    #import psutil
-
-    # pid = os.getpid()
-    # ps = psutil.Process(pid)
-
-
-
-class Demo(object):
-    def __init__(self, width, height):
-        self.quit = False
-        self.width = width
-        self.height = height
-
-    def on_resize(self, window, w, h):
-        active_window = glfw.get_current_context()
-        glfw.make_context_current(window)
-        # norm_size = normalize((w,h),glfwGetWindowSize(window))
-        # fb_size = denormalize(norm_size,glfwGetFramebufferSize(window))
-        adjust_gl_view(w, h, window)
-        glfw.make_context_current(active_window)
-        self.width, self.height = w, h
-
-    def on_key(self, window, key, scancode, action, mods):
-        # print "key pressed: ", key
-        if action == glfw.PRESS:
-            if key == glfw.KEY_ESCAPE:
-                on_close(window)
-
-    def on_button(self, window, button, action, mods):
-        pos = glfw.get_cursor_pos(window)
-        # pos = normalize(pos,glfwGetWindowSize(window))
-        # pos = denormalize(pos,(frame.img.shape[1],frame.img.shape[0]) ) # Position in img pixels
-
-    def on_close(self, window):
-        self.quit = True
-        logger.info('Process closing from window')
-
-    def draw_lines(x, y, w):
-        for i in range(1000):
-            sw = (i+0.05)*.1
-            vg.strokeWidth(sw)
-            vg.beginPath()
-            vg.moveTo(x,y)
-            vg.lineTo(x+1000.,y)
-            vg.stroke()
-            y += 1.
+class Demo(Base):
 
     def setup(self):
-        # get glfw started
-        glfw.init()
-        self.window = glfw.create_window(self.width, self.height, "Python NanoVG Demo", None, None)
-        glfw.set_window_pos(self.window, 0, 0)
-
-        # Register callbacks window
-        glfw.set_window_size_callback(self.window, self.on_resize)
-        glfw.set_window_close_callback(self.window, self.on_close)
-        glfw.set_key_callback(self.window, self.on_key)
-        glfw.set_mouse_button_callback(self.window, self.on_button)
-
-        basic_gl_setup()
-
-        # glfwSwapInterval(0)
-        glfw.make_context_current(self.window)
-
+        Base.setup(self)
         self.vg = pynanovg.Context()
+
         #nanovg.create_shared_context() # only needs to be called once per process.
         #from nanovg import vg, colorRGBAf,GRAPH_RENDER_FPS,GRAPH_RENDER_PERCENT
         self.vg.createFont(b'light', b'../nanovg/example/Roboto-Light.ttf')
@@ -187,21 +39,90 @@ class Demo(object):
         #cpu.pos = (240,20)
         ts = time.time()
 
-    def run(self):
-        self.setup()
-        while not self.quit:
-            clear_gl_screen()
-            render(self.vg, self.width, self.height)
-            glfw.swap_buffers(self.window)
-            glfw.poll_events()
-            # time.sleep(.03)
-        self.teardown()
+
+    def render(self):
+        vg = self.vg
+        width, height = self.width, self.height
+        vg.beginFrame(width, height, float(width)/float(height))
+        # draw_lines(0.,0.,100.)
+        # res = vg.textBounds(0.0, 0.0, "here is my text", "t")
+        # vg.save()
+        # draw rect
+        #p = vg.linearGradient(0.0, 0.0, 1000.0, 600.0, colorRGBAf(0.0,0.0,1.0,1.0), colorRGBAf(0.,1.,0.2,0.5))
+        # rg = vg.radialGradient(0.0, 0.0, 100.0, 120.0, colorRGBAf(0.0,0.0,1.0,1.0), colorRGBAf(0.,1.,0.2,0.5))
+        vg.beginPath()
+        # vg.fillColor(colorRGBAf(0.2,0.2,0.2,0.4))
+        vg.roundedRect(10.0, 10.0, 490.0, 290.0, 5.0)
+
+        #vg.fillPaint(p)
+        vg.fillColor(1.0, 0.0, 0.0, 0.8)
+        vg.fill()
+
+        #rg = vg.linearGradient(500.0, 300.0, 100.0, 200.0, colorRGBAf(0.0,0.0,0.0,0.0), colorRGBAf(0.,1.,0.2,0.5))
+        vg.beginPath()
+        #vg.fillPaint(rg)
+        vg.fillColor(0.0, 1.0, 0.0, 0.8)
+        vg.strokeColor(0.0, 0.4, 0.7, 0.9)
+        vg.strokeWidth(2.0)
+
+        pos = np.arange(0, 10, .1, dtype=np.float)
+        print(len(pos))
+        pos = np.vstack((pos*5,2*pos+(np.sin(pos)*100))).T
+        print(pos.shape)
+
+        #if 0:
+        vg.beginPath()
+        vg.moveTo(100,100)
+        for x,y in pos:
+            vg.lineTo(x,y)
+
+        #else:
+        #    # pass
+        #    vg.Polyline(pos)
+
+        vg.fill()
+        vg.stroke()
+
+        # test font rendering
+        txt = b'Hello World - Python NanoVG bindings.'
+        # print vg.textBounds(0,0,txt)
+        # print vg.textMetrics(1.)
+        # print vg.textBreakLines(txt)
+
+        vg.fontFace(b'bold')
+        vg.fontSize(24.0)
+        vg.fillColor(0.0, 0.0, 0.0, 0.9)
+        vg.text(15.0, 30.0, txt)
+
+        vg.fontFace(b'regular')
+        vg.fillColor(1.0, 1.0, 1.0, 1.0)
+        vg.text(15.0, 50.0, txt)
+
+        vg.fontFace(b'light')
+        vg.fillColor(0.0,1.0,0.2,1.0)
+        vg.text(15.0, 70.0, txt)
+        # print random.random()
+        #dt,ts = time.time()-ts,time.time()
+        # print dt
+        #fps.update(dt)
+        #fps.render()
+
+        #pct = ps.get_cpu_percent()
+        # pct = psutil.cpu_percent()
+        #cpu.update(pct)
+        #cpu.render()
+        vg.endFrame()
+        vg.restore()
+
+        #import os
+        #import psutil
+
+        # pid = os.getpid()
+        # ps = psutil.Process(pid)
 
     def teardown(self):
         self.vg.reset()
-        glfw.destroy_window(self.window)
-        glfw.terminate()
-        logger.debug("Process done")
+        Base.teardown(self)
 
 
 if __name__ == '__main__':
