@@ -71,10 +71,14 @@ class Base(object):
         # glfwSwapInterval(0)
         glfw.make_context_current(self.window)
 
+    def update(self):
+        self.mouse = glfw.get_cursor_pos(self.window)
+
     def run(self):
         self.setup()
         while not self.quit:
             self.clear_screen()
+            self.update()
             self.render()
             glfw.swap_buffers(self.window)
             glfw.poll_events()
