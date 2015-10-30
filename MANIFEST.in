@@ -1,0 +1,7 @@
+include *.md
+include LICENSE
+recursive-include examples *.py
+recursive-include pynanovg *.gitignore
+recursive-include pynanovg *.pxd
+recursive-include pynanovg *.pyx
+recursive-include tests *.py
