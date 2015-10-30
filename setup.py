@@ -1,11 +1,39 @@
 import os, platform
+from codecs import open
+
 import numpy
 
-from distutils.core import setup
-from distutils.extension import Extension
+from setuptools import setup
+from setuptools.command.build_ext import build_ext as _build_ext
+
 from Cython.Build import cythonize
 
-include_dirs = []
+###############################################################################
+name = 'pynanovg'
+description = 'NanoVG Python Bindings'
+
+author = "Hector Dearman"
+author_email = "hector.dearman@gmail.com"
+license = "MIT"
+version = '0.0.2'
+
+setup_requires = [
+    'numpy',
+],
+install_requires = [
+]
+tests_require = [
+    'pytest',
+]
+extras_require = {
+    'test': tests_require,
+}
+
+here = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
+
+###############################################################################
 
 if platform.system() == 'Darwin':
     include_dirs = ['OpenGL/gl.h', numpy.get_include()]
@@ -16,7 +44,7 @@ else:
     libs = ['GL', 'GLU', 'GLEW', 'm']
     link_args = []
 
-# Adapted from http://stackoverflow.com/questions/11010151
+# Cython hack: http://stackoverflow.com/questions/11010151
 class lazy_list(list):
     def __init__(self, callback):
         self._list = None
@@ -54,14 +82,35 @@ def ext_modules():
 
     return cython_modules
 
+# numpy hack: http://stackoverflow.com/questions/19919905/
+class build_ext(_build_ext):
+    def finalize_options(self):
+        _build_ext.finalize_options(self)
+        # Prevent numpy from thinking it is still in its setup process:
+        __builtins__.__NUMPY_SETUP__ = False
+        import numpy
+        self.include_dirs.append(numpy.get_include())
+
 setup(
-    name = 'pynanovg',
+    name = name,
+    description = description,
+    long_description = long_description,
+    author = author,
+    author_email = author_email,
+    license = license,
+    version = version,
+
+    # numpy hack
+    cmdclass={'build_ext':build_ext},
+
+    setup_requires = setup_requires,
+    install_requires = install_requires,
+    tests_require = tests_require,
+    extras_require = extras_require,
+
     packages = [
         'pynanovg',
     ],
-    license = "MIT",
-    version = '0.0.2',
-    description = 'NanoVG Python Bindings',
+
     ext_modules = lazy_list(ext_modules),
-    include_dirs = include_dirs,
 )
