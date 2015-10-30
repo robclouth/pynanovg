@@ -7,8 +7,10 @@ env:
   - TOXENV=py34
   - TOXENV=py35
 
-before_install:
-  - 'sudo apt-get install libosmesa6-dev'
+addons:
+  apt:
+    packages:
+      - libosmesa6-dev
 
 install:
   - pip install -e '.[dev]'
