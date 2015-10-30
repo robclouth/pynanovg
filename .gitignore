@@ -126,3 +126,5 @@ target/
 *.out
 *.app
 
+.python-version
+
