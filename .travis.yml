@@ -8,7 +8,7 @@ env:
   - TOXENV=py35
 
 before_install:
-  - "sudo apt-get install libX11-dev xorg-dev libgl1-mesa-dev"
+  - 'sudo apt-get install libosmesa6-dev'
 
 install:
   - pip install -e '.[dev]'
