@@ -8,7 +8,7 @@ env:
   - TOXENV=py35
 
 install:
-  - pip install -q -e .[dev] --use-mirrors
+  - pip install -q -e .[dev]
 
 script:
   - tox
