@@ -1,12 +1,8 @@
 import os, platform
 from codecs import open
 
-import numpy
-
 from setuptools import setup
 from setuptools.command.build_ext import build_ext as _build_ext
-
-from Cython.Build import cythonize
 
 ###############################################################################
 name = 'pynanovg'
@@ -19,14 +15,21 @@ version = '0.0.2'
 
 setup_requires = [
     'numpy',
+    'Cython',
 ],
 install_requires = [
+    'numpy',
 ]
 tests_require = [
     'pytest',
 ]
+dev_requires = tests_require + [
+    'tox',
+    'check-manifest',
+]
 extras_require = {
     'test': tests_require,
+    'dev': dev_requires,
 }
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -35,8 +38,10 @@ with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
 
 ###############################################################################
 
+include_dirs = []
+
 if platform.system() == 'Darwin':
-    include_dirs = ['OpenGL/gl.h', numpy.get_include()]
+    include_dirs = ['OpenGL/gl.h']
     libs = []
     link_args = ['-framework', 'OpenGL']
 else:
@@ -113,4 +118,5 @@ setup(
     ],
 
     ext_modules = lazy_list(ext_modules),
+    include_dirs = include_dirs,
 )
