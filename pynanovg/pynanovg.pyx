@@ -22,13 +22,13 @@ cdef class Context:
 
     def __cinit__(self):
         # todo - handle other backends like gl3 or gles
-        self.ctx = nvg.nvgCreateGL2(nvg.NVG_ANTIALIAS | nvg.NVG_STENCIL_STROKES)
+        self.ctx = nvg.nvgCreateGL3(nvg.NVG_ANTIALIAS | nvg.NVG_STENCIL_STROKES)
         if self.ctx is NULL:
             raise NVGError("Could not create NVG Context")
 
     def __dealloc__(self):
         if self.ctx:
-            nvg.nvgDeleteGL2(self.ctx)
+            nvg.nvgDeleteGL3(self.ctx)
 
     def __repr__(self):
         return "I am a context object"

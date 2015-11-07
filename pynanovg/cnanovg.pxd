@@ -217,8 +217,8 @@ cdef extern from "nanovg.h":
 
 cdef extern from "nanovg_gl.h":
 
-    # NVGcontext* nvgCreateGL3(int flags)
-    # void nvgDeleteGL3(NVGcontext* ctx)
+    NVGcontext* nvgCreateGL3(int flags)
+    void nvgDeleteGL3(NVGcontext* ctx)
 
     NVGcontext* nvgCreateGL2(int flags)
     void nvgDeleteGL2(NVGcontext* ctx)

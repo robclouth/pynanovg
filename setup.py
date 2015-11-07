@@ -1,8 +1,26 @@
-import os, platform
+import sys, os, platform
 from codecs import open
 
 from setuptools import setup
-from setuptools.command.build_ext import build_ext as _build_ext
+
+OPENGL_VERSION='gl3'
+
+for arg in iter(sys.argv):
+    if arg.startswith('--opengl='):
+        _, version = arg.split('=', 1)
+        sys.argv.remove(arg)
+
+try:
+    import numpy
+except ImportError:
+    print('Please install numpy.')
+    exit(1)
+
+try:
+    import Cython
+except ImportError:
+    print('Please install Cython.')
+    exit(1)
 
 ###############################################################################
 name = 'pynanovg'
@@ -41,35 +59,14 @@ with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
 include_dirs = []
 
 if platform.system() == 'Darwin':
-    include_dirs = ['OpenGL/gl.h']
+    import numpy
+    include_dirs = ['OpenGL/gl.h', numpy.get_include()]
     libs = []
     link_args = ['-framework', 'OpenGL']
 else:
     include_dirs = ['/usr/include/GL']
     libs = ['GL', 'GLU', 'GLEW', 'm']
     link_args = []
-
-# Cython hack: http://stackoverflow.com/questions/11010151
-class lazy_list(list):
-    def __init__(self, callback):
-        self._list = None
-        self.callback = callback
-
-    @property
-    def list(self):
-        if self._list is None:
-            self._list = self.callback()
-        return self._list
-
-    def __iter__(self):
-        for e in self.list:
-            yield e
-
-    def __getitem__(self, i):
-        return self.list[i]
-
-    def __len__(self):
-        return len(self.list)
 
 def ext_modules():
     from Cython.Build import cythonize
@@ -83,18 +80,15 @@ def ext_modules():
         # TODO: enable use of any of the following: 
         # NANOVG_GL2_IMPLEMENTATION, NANOVG_GL3_IMPLEMENTATION, 
         # NANOVG_GLES2_IMPLEMENTATION, NANOVG_GLES3_IMPLEMENTATION
-        m.extra_compile_args = ['-D NANOVG_GL2_IMPLEMENTATION']
+        implementation = {
+                'gl2': 'NANOVG_GL2_IMPLEMENTATION',
+                'gl3': 'NANOVG_GL3_IMPLEMENTATION',
+                'gles2': 'NANOVG_GLES2_IMPLEMENTATION',
+                'gles3': 'NANOVG_GLES3_IMPLEMENTATION',
+        }[OPENGL_VERSION]
+        m.extra_compile_args = ['-D ' + implementation]
 
     return cython_modules
-
-# numpy hack: http://stackoverflow.com/questions/19919905/
-class build_ext(_build_ext):
-    def finalize_options(self):
-        _build_ext.finalize_options(self)
-        # Prevent numpy from thinking it is still in its setup process:
-        __builtins__.__NUMPY_SETUP__ = False
-        import numpy
-        self.include_dirs.append(numpy.get_include())
 
 setup(
     name = name,
@@ -105,9 +99,6 @@ setup(
     license = license,
     version = version,
 
-    # numpy hack
-    cmdclass={'build_ext':build_ext},
-
     setup_requires = setup_requires,
     install_requires = install_requires,
     tests_require = tests_require,
@@ -117,6 +108,6 @@ setup(
         'pynanovg',
     ],
 
-    ext_modules = lazy_list(ext_modules),
+    ext_modules = ext_modules(),
     include_dirs = include_dirs,
 )
