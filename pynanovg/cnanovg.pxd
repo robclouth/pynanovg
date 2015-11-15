@@ -1,6 +1,6 @@
 # distutils: include_dirs = nanovg/src
 
-cdef extern from 'OpenGL/gl.h':
+cdef extern from 'OpenGL/gl3.h':
     # include gl header for nanovg source.
     pass
 

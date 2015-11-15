@@ -168,7 +168,6 @@ class Demo(Base):
         self.vg.reset()
         Base.teardown(self)
 
-
 if __name__ == '__main__':
     demo = Demo(1000, 600)
     demo.run()

@@ -60,13 +60,15 @@ include_dirs = []
 
 if platform.system() == 'Darwin':
     import numpy
-    include_dirs = ['OpenGL/gl.h', numpy.get_include()]
+    include_dirs = [numpy.get_include(), 'OpenGL/gl3.h', 'OpenGL/gl3ext.h']
     libs = []
     link_args = ['-framework', 'OpenGL']
+    compile_args = ['-D __APPLE__']
 else:
     include_dirs = ['/usr/include/GL']
     libs = ['GL', 'GLU', 'GLEW', 'm']
     link_args = []
+    compile_args = []
 
 def ext_modules():
     from Cython.Build import cythonize
@@ -86,7 +88,7 @@ def ext_modules():
                 'gles2': 'NANOVG_GLES2_IMPLEMENTATION',
                 'gles3': 'NANOVG_GLES3_IMPLEMENTATION',
         }[OPENGL_VERSION]
-        m.extra_compile_args = ['-D ' + implementation]
+        m.extra_compile_args = compile_args + ['-D ' + implementation]
 
     return cython_modules
 
