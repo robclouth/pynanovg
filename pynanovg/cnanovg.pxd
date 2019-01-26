@@ -13,14 +13,13 @@ cdef extern from "nanovg.h":
         float r,g,b,a
 
     ctypedef struct NVGpaint:
-        # float xform[6]
-        # float extent[2]
+        float xform[6]
+        float extent[2]
         float radius
         float feather
         NVGcolor innerColor
         NVGcolor outerColor
         int image
-        int repeat
 
     ctypedef struct NVGglyphPosition:
         const char* s
@@ -98,8 +97,13 @@ cdef extern from "nanovg.h":
         NVG_ALIGN_BOTTOM    = 1<<5,
         NVG_ALIGN_BASELINE  = 1<<6,
 
-    cdef enum NVGimage:
-        NVG_IMAGE_GENERATE_MIPMAPS = 1 << 0
+    cdef enum NVGimageFlags:
+        NVG_IMAGE_GENERATE_MIPMAPS	= 1<<0,     # Generate mipmaps during creation of the image.
+        NVG_IMAGE_REPEATX			= 1<<1,		# Repeat image in X direction.
+        NVG_IMAGE_REPEATY			= 1<<2,		# Repeat image in Y direction.
+        NVG_IMAGE_FLIPY				= 1<<3,		# Flips (inverses) image in Y direction when rendered.
+        NVG_IMAGE_PREMULTIPLIED		= 1<<4,		# Image data has premultiplied alpha.
+        NVG_IMAGE_NEAREST			= 1<<5,		# Image interpolation is Nearest instead Linear
 
     cdef enum NVGtexture:
         NVG_TEXTURE_ALPHA = 0x01,
@@ -113,12 +117,14 @@ cdef extern from "nanovg.h":
     void nvgRestore(NVGcontext* ctx)
     void nvgReset(NVGcontext* ctx)
 
+    void nvgShapeAntiAlias(NVGcontext* ctx, int enabled)
+
     # fill/stroke
     void nvgStrokeColor(NVGcontext* ctx, NVGcolor color)
     void nvgStrokePaint(NVGcontext* ctx, NVGpaint paint)
 
     void nvgFillColor(NVGcontext* ctx, NVGcolor color)
-    void nvgFillPaint(NVGcontext* ctx, NVGpaint* paint)
+    void nvgFillPaint(NVGcontext* ctx, NVGpaint paint)
 
     void nvgMiterLimit(NVGcontext* ctx, float limit)
     void nvgStrokeWidth(NVGcontext* ctx, float size)
@@ -160,10 +166,10 @@ cdef extern from "nanovg.h":
     void nvgDeleteImage(NVGcontext* ctx, int image)
 
     # gradients
-    NVGpaint nvgLinearGradient(NVGcontext* ctx, float sx, float sy, float ex, float ey, NVGcolor* icol, NVGcolor* ocol)
-    NVGpaint nvgBoxGradient(NVGcontext* ctx, float x, float y, float w, float h, float r, float f, NVGcolor* icol, NVGcolor* ocol)
-    NVGpaint nvgRadialGradient(NVGcontext* ctx, float cx, float cy, float inr, float outr, NVGcolor* icol, NVGcolor* ocol)
-    NVGpaint nvgImagePattern(NVGcontext* ctx, float ox, float oy, float ex, float ey, float angle, int image, int repeat, float alpha)
+    NVGpaint nvgLinearGradient(NVGcontext* ctx, float sx, float sy, float ex, float ey, NVGcolor icol, NVGcolor ocol)
+    NVGpaint nvgBoxGradient(NVGcontext* ctx, float x, float y, float w, float h, float r, float f, NVGcolor icol, NVGcolor ocol)
+    NVGpaint nvgRadialGradient(NVGcontext* ctx, float cx, float cy, float inr, float outr, NVGcolor icol, NVGcolor ocol)
+    NVGpaint nvgImagePattern(NVGcontext* ctx, float ox, float oy, float ex, float ey, float angle, int image, float alpha)
 
 
     void nvgScissor(NVGcontext* ctx, float x, float y, float w, float h)

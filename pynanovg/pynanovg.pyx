@@ -31,7 +31,7 @@ cdef class Context:
             nvg.nvgDeleteGL3(self.ctx)
 
     def __repr__(self):
-        return "I am a context object"
+        return "NanoVG context"
 
 
     #####################################################
@@ -89,6 +89,13 @@ cdef class Context:
     # - Different kinds of paints can be created using gradients or patterns
     # - Save render styles with save() and restore()
     #####################################################
+    def shapeAntiAlias(self, int enabled):
+        '''
+        Sets whether to draw antialias
+        '''
+        nvg.nvgShapeAntiAlias(self.ctx, enabled)
+
+
     def strokeColor(self, float r=0.0, float g=0.0, float b=0.0, float a=0.0):
         '''
         set current stroke to a solid color with or w/o alpha def by color
@@ -96,13 +103,13 @@ cdef class Context:
         cdef nvg.NVGcolor _color = nvg.NVGcolor(r, g, b, a)
         nvg.nvgStrokeColor(self.ctx, _color)
 
-    # def strokePaint(self, paint):
-    #     '''
-    #     set current stroke style to a paint type
-    #     - gradient (or)
-    #     - pattern
-    #     '''
-    #     nvg.nvgStrokePaint(self.ctx, paint)
+    def strokePaint(self, nvg.NVGpaint paint):
+        '''
+        set current stroke style to a paint type
+        - gradient (or)
+        - pattern
+        '''
+        nvg.nvgStrokePaint(self.ctx, paint)
 
     def fillColor(self, float r=0.0, float g=0.0, float b=0.0, float a=0.0):
         '''
@@ -111,13 +118,13 @@ cdef class Context:
         cdef nvg.NVGcolor _color = nvg.NVGcolor(r, g, b, a)
         nvg.nvgFillColor(self.ctx, _color)
 
-    # def fillPaint(self, paint):
-    #     '''
-    #     set current fill style to a paint type
-    #     - gradient (or)
-    #     - pattern
-    #     '''
-    #     nvg.nvgFillPaint(self.ctx, paint)
+    def fillPaint(self, nvg.NVGpaint paint):
+        '''
+        set current fill style to a paint type
+        - gradient (or)
+        - pattern
+        '''
+        nvg.nvgFillPaint(self.ctx, paint)
 
     def miterLimit(self, float limit):
         '''
@@ -245,25 +252,44 @@ cdef class Context:
     # NanoVG allows you to load jpg, png, psd, tga, pic and gif files to be used for rendering.
     # In addition you can upload your own image. The image loading is provided by stb_image.
     #####################################################
-    def createImage(self, const char* filename, int imageFlags):
+    def build_image_flags(self, generate_mipmaps=False, repeat_x=False, repeat_y=False, flip_y=False, premultiplied=False, nearest=False):
+        cdef int flags = 0
+        if generate_mipmaps:
+            flags |= nvg.NVG_IMAGE_GENERATE_MIPMAPS
+        if repeat_x:
+            flags |= nvg.NVG_IMAGE_REPEATX
+        if repeat_y:
+            flags |= nvg.NVG_IMAGE_REPEATY
+        if flip_y:
+            flags |= nvg.NVG_IMAGE_FLIPY
+        if premultiplied:
+            flags |= nvg.NVG_IMAGE_PREMULTIPLIED
+        if nearest:
+            flags |= nvg.NVG_IMAGE_NEAREST
+        return flags
+
+    def createImage(self, const char* filename, generate_mipmaps=False, repeat_x=False, repeat_y=False, flip_y=False, premultiplied=False, nearest=False):
         '''
         Creates image by loading it from the disk from specified file name.
         Returns handle to the image.
         '''
+        imageFlags = self.build_image_flags(generate_mipmaps, repeat_x, repeat_y, flip_y, premultiplied, nearest)
         return <int>nvg.nvgCreateImage(self.ctx, filename, imageFlags)
 
-    def createImageMem(self, int imageFlags, unsigned char* data, int ndata):
+    def createImageMem(self, unsigned char* data, int ndata, generate_mipmaps=False, repeat_x=False, repeat_y=False, flip_y=False, premultiplied=False, nearest=False):
         '''
         creates image by loading it from the specified chunk of memory
         returns handle to the image
         '''
+        imageFlags = self.build_image_flags(generate_mipmaps, repeat_x, repeat_y, flip_y, premultiplied, nearest)
         return <int>nvg.nvgCreateImageMem(self.ctx, imageFlags, data, ndata)
 
-    def createImageRGBA(self, int w, int h, int imageFlags, const unsigned char* data):
+    def createImageRGBA(self, int w, int h, const unsigned char* data, generate_mipmaps=False, repeat_x=False, repeat_y=False, flip_y=False, premultiplied=False, nearest=False):
         '''
         creates image from specified image data
         returns handle to the image
         '''
+        imageFlags = self.build_image_flags(generate_mipmaps, repeat_x, repeat_y, flip_y, premultiplied, nearest)
         return <int>nvg.nvgCreateImageRGBA(self.ctx, w, h, imageFlags, data)
 
     def updateImage(self, int image, const unsigned char* data):
@@ -272,14 +298,16 @@ cdef class Context:
         '''
         nvg.nvgUpdateImage(self.ctx, image, data)
 
-    # def imageSize(self, int image, int* w, int* h):
-    #     '''
-    #     returns the dimensions of a created image
-    #     '''
-    #     # cdef int* width, height
-    #     # width = &w
-    #     # height = &h
-    #     nvg.nvgImageSize(self.ctx, image, w, h)
+    def imageSize(self, int image):
+        '''
+        returns the dimensions of a created image
+        '''
+        cdef int width, height
+        # width = &w
+        # height = &h
+
+        nvg.nvgImageSize(self.ctx, image, &width, &height)
+        return (width, height)
 
     def deleteImage(self, int image):
         '''
@@ -296,55 +324,60 @@ cdef class Context:
     # - image pattern.
     # Can be used as paints for strokes and fills.
     #####################################################
-    # def linearGradient(self, float sx, float sy, float ex, float ey, c0, c1):
-    #     '''
-    #     Creates and returns a linear gradient.
-    #     - (sx,sy)-(ex,ey) specify the start and end coordinates of the linear gradient,
-    #     - color0 specifies the start color
-    #     - color1 specifies the end color
-    #     The gradient is transformed by the current transform when it is passed to fillPaint() or strokePaint()
-    #     '''
-    #     return nvg.nvgLinearGradient(self.ctx, sx, sy, ex, ey, c0, c1)
+    def linearGradient(self, float sx, float sy, float ex, float ey, c0, c1):
+        '''
+        Creates and returns a linear gradient.
+        - (sx,sy)-(ex,ey) specify the start and end coordinates of the linear gradient,
+        - color0 specifies the start color
+        - color1 specifies the end color
+        The gradient is transformed by the current transform when it is passed to fillPaint() or strokePaint()
+        '''
+        cdef nvg.NVGcolor col0 = nvg.NVGcolor(c0[0], c0[1], c0[2], c0[3])
+        cdef nvg.NVGcolor col1 = nvg.NVGcolor(c0[0], c0[1], c0[2], c0[3])
+        return nvg.nvgLinearGradient(self.ctx, sx, sy, ex, ey, col0, col1)
 
 
-    # def boxGradient(self, float x, float y, float w, float h, float r, float f, c0, c1):
-    #     '''
-    #     Creates and returns a box gradient
-    #     Box gradient is a feathered rounded rectangle
-    #     useful for rendering drop shadows or highlights for boxes
-    #     - (x,y) define the top-left corner of the rectangle
-    #     - (w,h) define the size of the rectangle
-    #     - r defines the corner radius
-    #     - f feather - feather defines how blurry the border of the rectangle appears
-    #     - color0 specifies the inner color of the gradient
-    #     - color1 specifies the outer color of the gradient
-    #     The gradient is transformed by the current transform when it is passed to fillPaint() or strokePaint().
-    #     '''
-    #     return nvg.nvgBoxGradient(self.ctx, x, y, w, h, r, f, c0, c1)
+    def boxGradient(self, float x, float y, float w, float h, float r, float f, c0, c1):
+        '''
+        Creates and returns a box gradient
+        Box gradient is a feathered rounded rectangle
+        useful for rendering drop shadows or highlights for boxes
+        - (x,y) define the top-left corner of the rectangle
+        - (w,h) define the size of the rectangle
+        - r defines the corner radius
+        - f feather - feather defines how blurry the border of the rectangle appears
+        - color0 specifies the inner color of the gradient
+        - color1 specifies the outer color of the gradient
+        The gradient is transformed by the current transform when it is passed to fillPaint() or strokePaint().
+        '''
+        cdef nvg.NVGcolor col0 = nvg.NVGcolor(c0[0], c0[1], c0[2], c0[3])
+        cdef nvg.NVGcolor col1 = nvg.NVGcolor(c0[0], c0[1], c0[2], c0[3])
+        return nvg.nvgBoxGradient(self.ctx, x, y, w, h, r, f, col0, col1)
 
 
-    # def radialGradient(self, float cx, float cy, float inner, float outer, c0, c1):
-    #     '''
-    #     Creates and returns a radial gradient
-    #     - (cx,cy) specify the center of the gradient
-    #     - (inner, outer) specify the inner and outer radius of the gradient
-    #     - color0, color1 specify the start and end color of the gradient
-    #     The gradient is transformed by the current transform when it is passed to fillPaint() or strokePaint().
-    #     '''
-    #     return nvg.nvgRadialGradient(self.ctx, cx, cy, inner, outer, c0, c1)
+    cdef radialGradient(self, float cx, float cy, float inner, float outer, c0, c1):
+        '''
+        Creates and returns a radial gradient
+        - (cx,cy) specify the center of the gradient
+        - (inner, outer) specify the inner and outer radius of the gradient
+        - color0, color1 specify the start and end color of the gradient
+        The gradient is transformed by the current transform when it is passed to fillPaint() or strokePaint().
+        '''
+        cdef nvg.NVGcolor col0 = nvg.NVGcolor(c0[0], c0[1], c0[2], c0[3])
+        cdef nvg.NVGcolor col1 = nvg.NVGcolor(c0[0], c0[1], c0[2], c0[3])
+        return nvg.nvgRadialGradient(self.ctx, cx, cy, inner, outer, col0, col1)
 
 
-    # def imagePattern(self, float ox, float oy, float ex, float ey, float angle, int image, int repeat, float alpha):
-    #     '''
-    #     Creates and returns an image pattern
-    #     - (ox,oy) specify the top-left location of the image pattern
-    #     - (ex,ey) specify the size of one image
-    #     - angle, rotation around the top-left corner
-    #     - image is the handle of the image to render
-    #     - repeat is combination of NVG_REPEATX and NVG_REPEATY which specifies if the image should be repeated across x or y
-    #     The gradient is transformed by the current transform when it is passed to fillPaint() or strokePaint().
-    #     '''
-    #     return nvg.nvgImagePattern(self.ctx, ox, oy, ex, ey, angle, image, repeat, alpha)
+    def imagePattern(self, float ox, float oy, float ex, float ey, float angle, int image, float alpha):
+        '''
+        Creates and returns an image pattern
+        - (ox,oy) specify the top-left location of the image pattern
+        - (ex,ey) specify the size of one image
+        - angle, rotation around the top-left corner
+        - image is the handle of the image to render
+        The gradient is transformed by the current transform when it is passed to fillPaint() or strokePaint().
+        '''
+        return nvg.nvgImagePattern(self.ctx, ox, oy, ex, ey, angle, image, alpha)
 
     #####################################################
     # Scissoring
